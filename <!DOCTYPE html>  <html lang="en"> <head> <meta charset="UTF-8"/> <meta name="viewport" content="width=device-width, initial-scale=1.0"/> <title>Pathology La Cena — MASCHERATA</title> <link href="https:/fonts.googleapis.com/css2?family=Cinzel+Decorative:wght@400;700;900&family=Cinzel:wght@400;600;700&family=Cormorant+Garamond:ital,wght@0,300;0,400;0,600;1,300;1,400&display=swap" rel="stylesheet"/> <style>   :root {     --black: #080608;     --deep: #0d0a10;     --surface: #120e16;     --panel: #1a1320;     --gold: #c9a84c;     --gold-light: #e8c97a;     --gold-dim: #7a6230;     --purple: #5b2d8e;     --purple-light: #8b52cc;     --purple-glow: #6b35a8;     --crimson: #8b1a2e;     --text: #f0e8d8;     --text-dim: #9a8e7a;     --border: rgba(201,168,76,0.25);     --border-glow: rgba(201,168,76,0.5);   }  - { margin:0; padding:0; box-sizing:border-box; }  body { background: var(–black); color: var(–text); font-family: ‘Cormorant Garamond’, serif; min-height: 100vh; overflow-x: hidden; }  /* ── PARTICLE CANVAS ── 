@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pathology La Cena — MASCHERATA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #080608;
+    --deep: #0d0a10;
+    --surface: #120e16;
+    --panel: #1a1320;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6230;
+    --purple: #5b2d8e;
+    --purple-light: #8b52cc;
+    --purple-glow: #6b35a8;
+    --crimson: #8b1a2e;
+    --text: #f0e8d8;
+    --text-dim: #9a8e7a;
+    --border: rgba(201,168,76,0.25);
+    --border-glow: rgba(201,168,76,0.5);
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+background: var(–black);
+color: var(–text);
+font-family: ‘Cormorant Garamond’, serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* ── PARTICLE CANVAS ── */
+#canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.4; }
+
+/* ── LAYOUT ── */
+.app { position:relative; z-index:1; }
+
+/* ── NAV ── */
+nav {
+position: fixed; top:0; left:0; right:0; z-index:100;
+background: rgba(8,6,8,0.92);
+border-bottom: 1px solid var(–border);
+backdrop-filter: blur(12px);
+padding: 0 2rem;
+display: flex; align-items:center; justify-content:space-between;
+height: 64px;
+}
+.nav-logo {
+font-family: ‘Cinzel Decorative’, serif;
+font-size: 0.85rem;
+color: var(–gold);
+letter-spacing: 0.12em;
+text-transform: uppercase;
+}
+.nav-logo span { color: var(–purple-light); }
+.nav-links { display:flex; gap:0.25rem; }
+.nav-btn {
+background: none; border:none; cursor:pointer;
+color: var(–text-dim); font-family:‘Cinzel’,serif;
+font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+padding: 0.5rem 0.9rem; border-radius:2px;
+transition: color 0.2s, background 0.2s;
+}
+.nav-btn:hover, .nav-btn.active {
+color: var(–gold); background: rgba(201,168,76,0.08);
+}
+.nav-btn.admin-btn { color: var(–purple-light); }
+.nav-btn.admin-btn:hover { color: var(–gold); background: rgba(91,45,142,0.15); }
+
+/* ── PAGES ── */
+.page { display:none; padding-top:64px; min-height:100vh; }
+.page.active { display:block; }
+
+/* ── HERO ── */
+#page-home {
+display:none;
+background: radial-gradient(ellipse at 50% 0%, rgba(91,45,142,0.15) 0%, transparent 60%),
+radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 50%),
+var(–black);
+}
+#page-home.active { display:block; }
+
+.hero {
+min-height: calc(100vh - 64px);
+display:flex; flex-direction:column; align-items:center; justify-content:center;
+text-align:center; padding:3rem 2rem;
+position:relative;
+}
+
+.mask-icon {
+font-size: 3.5rem; margin-bottom:1rem;
+filter: drop-shadow(0 0 20px rgba(201,168,76,0.6));
+animation: float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.hero-eyebrow {
+font-family:‘Cinzel’,serif; font-size:0.7rem; letter-spacing:0.35em;
+color:var(–gold-dim); text-transform:uppercase; margin-bottom:1.5rem;
+}
+.hero-title {
+font-family:‘Cinzel Decorative’,serif;
+font-size: clamp(2.2rem,6vw,4.5rem);
+font-weight:900; color:var(–gold);
+line-height:1.05;
+text-shadow: 0 0 40px rgba(201,168,76,0.4), 0 0 80px rgba(201,168,76,0.15);
+margin-bottom:0.4rem;
+}
+.hero-subtitle {
+font-family:‘Cinzel Decorative’,serif;
+font-size: clamp(1rem,2.5vw,1.6rem);
+color:var(–purple-light);
+letter-spacing:0.2em; margin-bottom:1rem;
+text-shadow: 0 0 30px rgba(139,82,204,0.5);
+}
+.hero-tagline {
+font-style:italic; font-size:1.15rem; color:var(–text-dim);
+letter-spacing:0.05em; margin-bottom:2.5rem;
+}
+
+.countdown {
+display:flex; gap:1.5rem; justify-content:center;
+margin-bottom:3rem; flex-wrap:wrap;
+}
+.cd-unit {
+text-align:center;
+background: rgba(201,168,76,0.06);
+border:1px solid var(–border);
+border-radius:4px; padding:1rem 1.4rem;
+min-width:80px;
+}
+.cd-num {
+font-family:‘Cinzel Decorative’,serif;
+font-size:2rem; color:var(–gold); display:block;
+text-shadow:0 0 20px rgba(201,168,76,0.5);
+}
+.cd-label { font-size:0.65rem; letter-spacing:0.2em; color:var(–text-dim); text-transform:uppercase; }
+
+.event-details {
+display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;
+margin-bottom:3rem;
+}
+.detail-pill {
+border:1px solid var(–border); border-radius:2px;
+padding:0.6rem 1.2rem; font-size:0.85rem; color:var(–text-dim);
+letter-spacing:0.05em;
+}
+.detail-pill strong { color:var(–gold); }
+
+.hero-cta { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+
+/* ── BUTTONS ── */
+.btn-gold {
+background: linear-gradient(135deg,#c9a84c,#e8c97a,#c9a84c);
+color:#080608; border:none; cursor:pointer;
+font-family:‘Cinzel’,serif; font-weight:700;
+font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;
+padding:0.9rem 2rem; border-radius:2px;
+transition:transform 0.2s, box-shadow 0.2s;
+box-shadow:0 4px 20px rgba(201,168,76,0.3);
+}
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,0.5); }
+
+.btn-outline {
+background:transparent; color:var(–gold);
+border:1px solid var(–gold-dim); cursor:pointer;
+font-family:‘Cinzel’,serif; font-size:0.75rem;
+letter-spacing:0.15em; text-transform:uppercase;
+padding:0.9rem 2rem; border-radius:2px;
+transition:all 0.2s;
+}
+.btn-outline:hover { border-color:var(–gold); background:rgba(201,168,76,0.08); }
+
+.btn-purple {
+background:linear-gradient(135deg,#5b2d8e,#8b52cc);
+color:#fff; border:none; cursor:pointer;
+font-family:‘Cinzel’,serif; font-size:0.75rem;
+letter-spacing:0.15em; text-transform:uppercase;
+padding:0.9rem 2rem; border-radius:2px;
+transition:all 0.2s;
+box-shadow:0 4px 20px rgba(91,45,142,0.4);
+}
+.btn-purple:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(91,45,142,0.6); }
+
+.btn-sm {
+padding:0.5rem 1rem; font-size:0.65rem;
+}
+.btn-danger {
+background:rgba(139,26,46,0.3); color:#e06080;
+border:1px solid rgba(139,26,46,0.5); cursor:pointer;
+font-family:‘Cinzel’,serif; font-size:0.65rem;
+letter-spacing:0.1em; text-transform:uppercase;
+padding:0.4rem 0.8rem; border-radius:2px; transition:all 0.2s;
+}
+.btn-danger:hover { background:rgba(139,26,46,0.5); }
+
+/* ── SECTION CONTAINER ── */
+.section { padding:5rem 2rem; max-width:1100px; margin:0 auto; }
+.section-title {
+font-family:‘Cinzel Decorative’,serif;
+font-size:clamp(1.4rem,3vw,2rem); color:var(–gold);
+text-align:center; margin-bottom:0.5rem;
+}
+.section-line {
+width:120px; height:1px; background:linear-gradient(90deg,transparent,var(–gold),transparent);
+margin:0 auto 0.75rem;
+}
+.section-sub { text-align:center; color:var(–text-dim); font-style:italic; margin-bottom:3rem; font-size:1.05rem; }
+
+/* ── TICKET PRICING ── */
+.ticket-cards { display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; }
+.ticket-card {
+border:1px solid var(–border); border-radius:4px;
+padding:2rem; width:280px; text-align:center;
+background:var(–panel); position:relative; overflow:hidden;
+transition:transform 0.3s, box-shadow 0.3s;
+}
+.ticket-card::before {
+content:’’; position:absolute; top:0; left:0; right:0; height:3px;
+background:linear-gradient(90deg,transparent,var(–gold),transparent);
+}
+.ticket-card:hover { transform:translateY(-6px); box-shadow:0 20px 60px rgba(201,168,76,0.15); }
+.ticket-card.featured::before { background:linear-gradient(90deg,transparent,var(–purple-light),transparent); }
+.ticket-badge {
+position:absolute; top:1rem; right:1rem;
+background:var(–purple); color:#fff;
+font-family:‘Cinzel’,serif; font-size:0.6rem; letter-spacing:0.1em;
+padding:0.2rem 0.5rem; border-radius:2px; text-transform:uppercase;
+}
+.ticket-icon { font-size:2.5rem; margin-bottom:1rem; }
+.ticket-type { font-family:‘Cinzel’,serif; font-size:0.8rem; letter-spacing:0.2em; color:var(–text-dim); text-transform:uppercase; margin-bottom:0.5rem; }
+.ticket-price { font-family:‘Cinzel Decorative’,serif; font-size:2rem; color:var(–gold); margin-bottom:0.25rem; }
+.ticket-note { font-size:0.8rem; color:var(–text-dim); font-style:italic; margin-bottom:1.5rem; }
+
+.payment-info {
+background:var(–panel); border:1px solid var(–border); border-radius:4px;
+padding:2rem; margin-top:3rem; text-align:center;
+}
+.payment-info h3 { font-family:‘Cinzel’,serif; color:var(–gold); margin-bottom:1rem; letter-spacing:0.1em; }
+.payment-step {
+display:flex; align-items:flex-start; gap:1rem; text-align:left;
+margin-bottom:0.75rem; font-size:0.95rem;
+}
+.step-num {
+background:var(–gold); color:#080608;
+font-family:‘Cinzel’,serif; font-weight:700; font-size:0.7rem;
+min-width:24px; height:24px; border-radius:50%;
+display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.highlight { color:var(–gold); font-weight:600; }
+.purple-hl { color:var(–purple-light); }
+
+/* ── FORMS ── */
+.form-container {
+max-width:520px; margin:0 auto;
+background:var(–panel); border:1px solid var(–border);
+border-radius:4px; padding:2.5rem; position:relative; overflow:hidden;
+}
+.form-container::before {
+content:’’; position:absolute; top:0; left:0; right:0; height:2px;
+background:linear-gradient(90deg,transparent,var(–gold),transparent);
+}
+.form-header { text-align:center; margin-bottom:2rem; }
+.form-icon { font-size:2.5rem; margin-bottom:0.75rem; display:block; }
+.form-title { font-family:‘Cinzel’,serif; font-size:1.2rem; color:var(–gold); letter-spacing:0.1em; }
+.form-sub { font-size:0.9rem; color:var(–text-dim); font-style:italic; margin-top:0.25rem; }
+
+.form-group { margin-bottom:1.25rem; }
+label { display:block; font-family:‘Cinzel’,serif; font-size:0.65rem; letter-spacing:0.15em; color:var(–text-dim); text-transform:uppercase; margin-bottom:0.4rem; }
+input, select, textarea {
+width:100%; background:rgba(255,255,255,0.04);
+border:1px solid rgba(201,168,76,0.2); border-radius:2px;
+color:var(–text); font-family:‘Cormorant Garamond’,serif; font-size:1rem;
+padding:0.7rem 1rem; transition:border 0.2s, box-shadow 0.2s; outline:none;
+}
+input:focus, select:focus, textarea:focus {
+border-color:var(–gold-dim); box-shadow:0 0 0 2px rgba(201,168,76,0.1);
+}
+select option { background:var(–deep); color:var(–text); }
+.form-row { display:flex; gap:1rem; }
+.form-row .form-group { flex:1; }
+.form-hint { font-size:0.78rem; color:var(–text-dim); font-style:italic; margin-top:0.3rem; }
+
+.toggle-form { text-align:center; margin-top:1rem; font-size:0.9rem; color:var(–text-dim); }
+.toggle-link { color:var(–gold); cursor:pointer; text-decoration:underline; }
+
+/* ── TICKET DISPLAY ── */
+.ticket-display {
+max-width:600px; margin:2rem auto;
+background:linear-gradient(145deg,#0d0a10,#1a1320);
+border:2px solid var(–gold); border-radius:8px;
+padding:2.5rem; position:relative; overflow:hidden; text-align:center;
+}
+.ticket-display::before {
+content:’’; position:absolute; inset:0;
+background:
+radial-gradient(circle at 20% 20%, rgba(201,168,76,0.05) 0%, transparent 50%),
+radial-gradient(circle at 80% 80%, rgba(91,45,142,0.08) 0%, transparent 50%);
+}
+.ticket-display-inner { position:relative; z-index:1; }
+.ticket-corner { position:absolute; font-size:1.5rem; }
+.ticket-corner.tl { top:1rem; left:1rem; }
+.ticket-corner.tr { top:1rem; right:1rem; }
+.ticket-corner.bl { bottom:1rem; left:1rem; }
+.ticket-corner.br { bottom:1rem; right:1rem; }
+.ticket-event-name { font-family:‘Cinzel Decorative’,serif; font-size:1.4rem; color:var(–gold); margin-bottom:0.25rem; }
+.ticket-theme { font-family:‘Cinzel’,serif; font-size:0.9rem; color:var(–purple-light); letter-spacing:0.2em; margin-bottom:0.25rem; }
+.ticket-divider { border:none; border-top:1px solid var(–border); margin:1rem 0; }
+.ticket-holder-name { font-size:1.6rem; color:var(–text); font-style:italic; margin-bottom:0.5rem; }
+.ticket-meta { display:flex; gap:2rem; justify-content:center; flex-wrap:wrap; margin-bottom:1rem; }
+.ticket-meta-item { text-align:center; }
+.ticket-meta-label { font-family:‘Cinzel’,serif; font-size:0.6rem; letter-spacing:0.15em; color:var(–text-dim); text-transform:uppercase; display:block; }
+.ticket-meta-value { color:var(–gold); font-family:‘Cinzel’,serif; font-size:0.95rem; }
+.ticket-number {
+font-family:‘Cinzel Decorative’,serif; font-size:2.5rem; color:var(–gold);
+text-shadow:0 0 20px rgba(201,168,76,0.5);
+letter-spacing:0.1em; margin:0.5rem 0;
+}
+.ticket-number-label { font-family:‘Cinzel’,serif; font-size:0.6rem; letter-spacing:0.2em; color:var(–text-dim); text-transform:uppercase; }
+.ticket-valid { font-family:‘Cinzel’,serif; font-size:0.7rem; letter-spacing:0.1em; color:var(–purple-light); text-transform:uppercase; margin-top:0.5rem; }
+.ticket-venue { font-style:italic; color:var(–text-dim); font-size:0.9rem; margin-top:0.25rem; }
+
+/* ── POLLS ── */
+.polls-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; }
+.poll-card {
+background:var(–panel); border:1px solid var(–border); border-radius:4px;
+padding:1.5rem; transition:box-shadow 0.3s;
+}
+.poll-card:hover { box-shadow:0 8px 30px rgba(201,168,76,0.1); }
+.poll-card-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; }
+.poll-emoji { font-size:1.8rem; }
+.poll-card-title { font-family:‘Cinzel’,serif; font-size:0.9rem; letter-spacing:0.05em; color:var(–gold); }
+.poll-card-type { font-size:0.75rem; color:var(–text-dim); font-style:italic; }
+.nominee-list { margin-bottom:1rem; }
+.nominee-item {
+display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;
+padding:0.5rem 0.75rem; border-radius:2px; cursor:pointer;
+border:1px solid transparent; transition:all 0.2s;
+font-size:0.95rem;
+}
+.nominee-item:hover { border-color:var(–border); background:rgba(201,168,76,0.05); }
+.nominee-item.voted { border-color:var(–gold-dim); background:rgba(201,168,76,0.08); }
+.nominee-radio {
+width:14px; height:14px; border-radius:50%;
+border:2px solid var(–gold-dim); flex-shrink:0; display:flex;
+align-items:center; justify-content:center; transition:all 0.2s;
+}
+.nominee-item.voted .nominee-radio { background:var(–gold); border-color:var(–gold); }
+.nominee-radio-dot { width:6px; height:6px; border-radius:50%; background:#080608; display:none; }
+.nominee-item.voted .nominee-radio-dot { display:block; }
+.nominee-name { flex:1; }
+.nominee-count { font-family:‘Cinzel’,serif; font-size:0.7rem; color:var(–text-dim); }
+.vote-bar-wrap { margin-bottom:0.3rem; }
+.vote-bar-label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(–text-dim); margin-bottom:0.2rem; }
+.vote-bar-track { height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.vote-bar-fill { height:100%; background:linear-gradient(90deg,var(–gold-dim),var(–gold)); border-radius:2px; transition:width 0.4s; }
+.poll-footer { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; }
+.poll-total { font-size:0.75rem; color:var(–text-dim); font-style:italic; }
+.voted-badge { font-family:‘Cinzel’,serif; font-size:0.65rem; letter-spacing:0.1em; color:var(–gold); text-transform:uppercase; }
+
+.login-required-note { text-align:center; color:var(–text-dim); font-style:italic; font-size:0.95rem; margin-top:2rem; }
+.login-required-note .toggle-link { color:var(–gold); cursor:pointer; text-decoration:underline; }
+
+/* ── ADMIN ── */
+.admin-header {
+background:linear-gradient(135deg,rgba(91,45,142,0.2),rgba(201,168,76,0.05));
+border-bottom:1px solid var(–border); padding:2rem;
+text-align:center;
+}
+.admin-tabs { display:flex; border-bottom:1px solid var(–border); background:var(–deep); }
+.admin-tab {
+padding:1rem 1.5rem; cursor:pointer; font-family:‘Cinzel’,serif;
+font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+color:var(–text-dim); border-bottom:2px solid transparent;
+transition:all 0.2s;
+}
+.admin-tab.active { color:var(–gold); border-bottom-color:var(–gold); }
+.admin-content { padding:2rem; max-width:1200px; margin:0 auto; }
+.admin-panel { display:none; }
+.admin-panel.active { display:block; }
+
+.admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+@media(max-width:700px) { .admin-grid { grid-template-columns:1fr; } .form-row { flex-direction:column; } }
+
+.admin-card {
+background:var(–panel); border:1px solid var(–border); border-radius:4px; padding:1.5rem;
+}
+.admin-card-title { font-family:‘Cinzel’,serif; color:var(–gold); font-size:0.85rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1rem; }
+
+.code-list { list-style:none; max-height:280px; overflow-y:auto; }
+.code-item {
+display:flex; align-items:center; justify-content:space-between;
+padding:0.6rem 0; border-bottom:1px solid rgba(255,255,255,0.04);
+font-size:0.85rem;
+}
+.code-tag {
+font-family:‘Cinzel’,serif; font-size:0.75rem;
+background:rgba(201,168,76,0.1); color:var(–gold);
+padding:0.2rem 0.6rem; border-radius:2px; letter-spacing:0.05em;
+}
+.code-tag.used { background:rgba(139,26,46,0.15); color:#e06080; text-decoration:line-through; }
+.code-meta { font-size:0.7rem; color:var(–text-dim); }
+.code-expires { font-size:0.65rem; color:var(–text-dim); font-style:italic; }
+
+.attendee-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+.attendee-table th {
+font-family:‘Cinzel’,serif; font-size:0.65rem; letter-spacing:0.15em;
+color:var(–text-dim); text-transform:uppercase; padding:0.75rem 0.5rem;
+border-bottom:1px solid var(–border); text-align:left;
+}
+.attendee-table td { padding:0.7rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+.attendee-table tr:last-child td { border-bottom:none; }
+.badge {
+font-family:‘Cinzel’,serif; font-size:0.6rem; letter-spacing:0.08em;
+padding:0.2rem 0.5rem; border-radius:2px; text-transform:uppercase;
+}
+.badge-single { background:rgba(201,168,76,0.1); color:var(–gold); }
+.badge-couple { background:rgba(91,45,142,0.2); color:var(–purple-light); }
+
+.stat-row { display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.stat-box {
+flex:1; min-width:100px; background:var(–surface); border:1px solid var(–border);
+border-radius:4px; padding:1rem; text-align:center;
+}
+.stat-num { font-family:‘Cinzel Decorative’,serif; font-size:1.8rem; color:var(–gold); }
+.stat-label { font-size:0.7rem; color:var(–text-dim); font-family:‘Cinzel’,serif; letter-spacing:0.1em; text-transform:uppercase; }
+
+/* ── POLL ADMIN ── */
+.poll-admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+@media(max-width:700px){ .poll-admin-grid { grid-template-columns:1fr; } }
+.nominee-input-row { display:flex; gap:0.5rem; margin-bottom:0.5rem; }
+.nominee-input-row input { flex:1; }
+.nominees-list-admin { list-style:none; margin-top:0.5rem; }
+.nominees-list-admin li {
+display:flex; align-items:center; justify-content:space-between;
+padding:0.4rem 0.6rem; background:rgba(255,255,255,0.03);
+border-radius:2px; margin-bottom:0.25rem; font-size:0.85rem;
+}
+
+.existing-polls-list { list-style:none; }
+.existing-poll-item {
+display:flex; align-items:center; justify-content:space-between;
+padding:0.75rem; background:rgba(255,255,255,0.03); border-radius:2px;
+margin-bottom:0.5rem; border:1px solid rgba(255,255,255,0.05);
+}
+.existing-poll-info { flex:1; }
+.existing-poll-name { font-family:‘Cinzel’,serif; color:var(–text); font-size:0.85rem; }
+.existing-poll-meta { font-size:0.75rem; color:var(–text-dim); font-style:italic; }
+.existing-poll-actions { display:flex; gap:0.5rem; }
+
+/* ── MASCHERATA AI ── */
+.ai-chat-container {
+max-width:700px; margin:0 auto;
+background:var(–panel); border:1px solid var(–border); border-radius:4px;
+overflow:hidden; position:relative;
+}
+.ai-chat-header {
+background:linear-gradient(135deg,rgba(91,45,142,0.3),rgba(201,168,76,0.05));
+padding:1rem 1.5rem; border-bottom:1px solid var(–border);
+display:flex; align-items:center; gap:0.75rem;
+}
+.ai-chat-title { font-family:‘Cinzel’,serif; color:var(–gold); font-size:0.9rem; letter-spacing:0.1em; }
+.ai-chat-sub { font-size:0.75rem; color:var(–text-dim); font-style:italic; }
+.ai-messages {
+min-height:350px; max-height:450px; overflow-y:auto;
+padding:1.5rem; display:flex; flex-direction:column; gap:1rem;
+}
+.ai-msg { display:flex; gap:0.75rem; align-items:flex-start; }
+.ai-msg.user { flex-direction:row-reverse; }
+.ai-avatar {
+width:36px; height:36px; border-radius:50%; flex-shrink:0;
+background:linear-gradient(135deg,var(–purple),var(–gold-dim));
+display:flex; align-items:center; justify-content:center; font-size:1rem;
+border:1px solid var(–border);
+}
+.ai-msg.user .ai-avatar { background:linear-gradient(135deg,var(–gold-dim),#3a2a1a); }
+.ai-bubble {
+max-width:80%; background:rgba(255,255,255,0.04);
+border:1px solid var(–border); border-radius:4px;
+padding:0.75rem 1rem; font-size:0.95rem; line-height:1.6;
+}
+.ai-msg.user .ai-bubble { background:rgba(201,168,76,0.08); border-color:rgba(201,168,76,0.2); text-align:right; }
+.ai-input-row { display:flex; gap:0.5rem; padding:1rem 1.5rem; border-top:1px solid var(–border); }
+.ai-input-row input { flex:1; }
+.ai-loading { display:flex; gap:4px; align-items:center; padding:0.5rem; }
+.ai-dot { width:6px; height:6px; border-radius:50%; background:var(–gold-dim); animation:pulse 1.2s infinite; }
+.ai-dot:nth-child(2){ animation-delay:0.2s; }
+.ai-dot:nth-child(3){ animation-delay:0.4s; }
+@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* ── TOASTS ── */
+#toast-container { position:fixed; bottom:2rem; right:2rem; z-index:200; display:flex; flex-direction:column; gap:0.5rem; }
+.toast {
+background:var(–panel); border:1px solid var(–border);
+border-radius:4px; padding:0.75rem 1.25rem;
+font-size:0.85rem; min-width:250px;
+animation:slideIn 0.3s ease; display:flex; align-items:center; gap:0.5rem;
+}
+.toast.success { border-color:var(–gold-dim); }
+.toast.error { border-color:var(–crimson); }
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(–deep); }
+::-webkit-scrollbar-thumb { background:var(–gold-dim); border-radius:2px; }
+
+/* ── ORNAMENT DIVIDER ── */
+.ornament { text-align:center; color:var(–gold-dim); font-size:1.2rem; margin:1rem 0; letter-spacing:0.5rem; }
+
+.text-center { text-align:center; }
+.mt-1 { margin-top:1rem; }
+.mt-2 { margin-top:2rem; }
+.full-width { width:100%; }
+.hidden { display:none !important; }
+</style>
+
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- TOAST CONTAINER -->
+
+<div id="toast-container"></div>
+
+<!-- NAV -->
+
+<nav>
+  <div class="nav-logo">🎭 <span>Pathology</span> La Cena</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('tickets')">Tickets</button>
+    <button class="nav-btn" onclick="showPage('polls')">Polls</button>
+    <button class="nav-btn" onclick="showPage('ai')">Oracle</button>
+    <button class="nav-btn admin-btn" id="admin-nav-btn" onclick="showPage('admin')" style="display:none">⚙ Admin</button>
+  </div>
+</nav>
+
+<!-- ════════════ HOME ════════════ -->
+
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="mask-icon">🎭</div>
+    <div class="hero-eyebrow">KIU Western Campus · Faculty of Clinical Medicine · 216 Series</div>
+    <h1 class="hero-title">PATHOLOGY<br>LA CENA</h1>
+    <div class="hero-subtitle">✦ MASCHERATA ✦</div>
+    <p class="hero-tagline">"Masked in Mystery, United by Medicine."</p>
+
+```
+<div class="countdown" id="countdown">
+  <div class="cd-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Days</span></div>
+  <div class="cd-unit"><span class="cd-num" id="cd-hours">--</span><span class="cd-label">Hours</span></div>
+  <div class="cd-unit"><span class="cd-num" id="cd-mins">--</span><span class="cd-label">Minutes</span></div>
+  <div class="cd-unit"><span class="cd-num" id="cd-secs">--</span><span class="cd-label">Seconds</span></div>
+</div>
+
+<div class="event-details">
+  <div class="detail-pill">📅 <strong>31st October 2026</strong></div>
+  <div class="detail-pill">📍 <strong>Western Meridean Hotel</strong>, Mbarara-Bushenyi</div>
+  <div class="detail-pill">🎫 From <strong>60,000 UGX</strong></div>
+</div>
+
+<div class="hero-cta">
+  <button class="btn-gold" onclick="showPage('tickets')">Get Your Ticket</button>
+  <button class="btn-outline" onclick="showPage('polls')">Vote in Polls</button>
+</div>
+
+<div class="ornament" style="margin-top:3rem">⟡ ✦ ⟡</div>
+<p style="font-style:italic;color:var(--text-dim);font-size:0.9rem;letter-spacing:0.05em">
+  "Medicine demands excellence. Tonight demands elegance."
+</p>
+```
+
+  </div>
+</div>
+
+<!-- ════════════ TICKETS ════════════ -->
+
+<div id="page-tickets" class="page">
+  <div class="section">
+    <h2 class="section-title">🎫 Secure Your Seat</h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Register, complete payment, then enter your Dinner Code to unlock your ticket.</p>
+
+```
+<!-- Ticket options -->
+<div class="ticket-cards" style="margin-bottom:3rem">
+  <div class="ticket-card">
+    <div class="ticket-icon">🎭</div>
+    <div class="ticket-type">Single Entry</div>
+    <div class="ticket-price">60,000</div>
+    <div class="ticket-note">UGX — One masked guest</div>
+    <button class="btn-gold full-width" onclick="scrollToRegister('single')">Register as Single</button>
+  </div>
+  <div class="ticket-card featured">
+    <div class="ticket-badge">Limited</div>
+    <div class="ticket-icon">💫</div>
+    <div class="ticket-type">Couple Entry</div>
+    <div class="ticket-price">110,000</div>
+    <div class="ticket-note">UGX — Two guests, one night of magic</div>
+    <button class="btn-purple full-width" onclick="scrollToRegister('couple')">Register as Couple</button>
+  </div>
+</div>
+
+<!-- Payment instructions -->
+<div class="payment-info">
+  <h3>💳 How to Pay & Get Your Code</h3>
+  <div style="max-width:500px;margin:0 auto">
+    <div class="payment-step"><div class="step-num">1</div><div>Send payment to MTN MoMo: <span class="highlight">0776 441 070 / 13596432</span> (Solomon)</div></div>
+    <div class="payment-step"><div class="step-num">2</div><div>Save your <span class="highlight">Transaction ID</span></div></div>
+    <div class="payment-step"><div class="step-num">3</div><div>WhatsApp your Transaction ID to <span class="highlight">+256 705 265952</span></div></div>
+    <div class="payment-step"><div class="step-num">4</div><div>Receive your <span class="purple-hl">Dinner Code</span> — enter it below to unlock your digital ticket</div></div>
+  </div>
+</div>
+
+<!-- Register / Login / Code tabs -->
+<div style="margin-top:3rem">
+  <div id="ticket-tabs" style="display:flex;justify-content:center;gap:0.5rem;margin-bottom:2rem">
+    <button class="btn-outline btn-sm" id="tab-register" onclick="showTicketTab('register')">Register</button>
+    <button class="btn-outline btn-sm" id="tab-login" onclick="showTicketTab('login')">Login</button>
+    <button class="btn-outline btn-sm" id="tab-code" onclick="showTicketTab('code')">Enter Code</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="ticket-tab-register" class="form-container">
+    <div class="form-header">
+      <span class="form-icon">🎭</span>
+      <div class="form-title">Join the Masquerade</div>
+      <div class="form-sub">Create your guest profile</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input type="text" id="reg-fname" placeholder="Your first name"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="reg-lname" placeholder="Your last name"/></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="your@email.com"/></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Class</label>
+        <select id="reg-class">
+          <option value="">Select class</option>
+          <option>3.2A</option><option>3.1B</option><option>3.1C</option>
+          <option>Other / Staff</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="reg-category">
+          <option value="single">Single (60,000 UGX)</option>
+          <option value="couple">Couple (110,000 UGX)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="Create a password"/></div>
+    <div class="form-group"><label>Confirm Password</label><input type="password" id="reg-confirm" placeholder="Confirm password"/></div>
+    <button class="btn-gold full-width mt-1" onclick="register()">Register</button>
+    <div class="toggle-form">Already registered? <span class="toggle-link" onclick="showTicketTab('login')">Login here</span></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="ticket-tab-login" class="form-container hidden">
+    <div class="form-header">
+      <span class="form-icon">🔐</span>
+      <div class="form-title">Return to the Ball</div>
+      <div class="form-sub">Sign in to your account</div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Your password"/></div>
+    <button class="btn-gold full-width mt-1" onclick="login()">Enter</button>
+    <div class="toggle-form">New here? <span class="toggle-link" onclick="showTicketTab('register')">Register now</span></div>
+  </div>
+
+  <!-- CODE ENTRY -->
+  <div id="ticket-tab-code" class="form-container hidden">
+    <div class="form-header">
+      <span class="form-icon">✨</span>
+      <div class="form-title">Unlock Your Ticket</div>
+      <div class="form-sub">Enter the Dinner Code sent via WhatsApp</div>
+    </div>
+    <div id="code-login-wall">
+      <p style="text-align:center;color:var(--text-dim);font-style:italic;margin-bottom:1rem">You must be logged in to redeem a code.</p>
+      <button class="btn-outline full-width" onclick="showTicketTab('login')">Login First</button>
+    </div>
+    <div id="code-entry-form" class="hidden">
+      <div class="form-group"><label>Dinner Code</label><input type="text" id="dinner-code-input" placeholder="e.g. MSCRT-X7K2P" style="letter-spacing:0.15em;text-transform:uppercase"/></div>
+      <p class="form-hint">Codes are single-use and expire after 4 months of issue.</p>
+      <button class="btn-gold full-width mt-1" onclick="redeemCode()">Unlock Ticket 🎭</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET DISPLAY -->
+<div id="ticket-result" class="hidden" style="margin-top:3rem">
+  <div class="ticket-display">
+    <div class="ticket-corner tl">⟡</div>
+    <div class="ticket-corner tr">⟡</div>
+    <div class="ticket-corner bl">⟡</div>
+    <div class="ticket-corner br">⟡</div>
+    <div class="ticket-display-inner">
+      <div class="ticket-event-name">PATHOLOGY LA CENA</div>
+      <div class="ticket-theme">✦ MASCHERATA ✦</div>
+      <hr class="ticket-divider"/>
+      <div class="ticket-holder-name" id="td-name">—</div>
+      <div class="ticket-meta">
+        <div class="ticket-meta-item"><span class="ticket-meta-label">Class</span><span class="ticket-meta-value" id="td-class">—</span></div>
+        <div class="ticket-meta-item"><span class="ticket-meta-label">Category</span><span class="ticket-meta-value" id="td-category">—</span></div>
+        <div class="ticket-meta-item"><span class="ticket-meta-label">Date</span><span class="ticket-meta-value">31 OCT 2026</span></div>
+      </div>
+      <hr class="ticket-divider"/>
+      <div class="ticket-number-label">Dinner Number</div>
+      <div class="ticket-number" id="td-number">#——</div>
+      <div class="ticket-valid">✓ Verified &amp; Valid</div>
+      <div class="ticket-venue">Western Meridean Hotel, Mbarara-Bushenyi</div>
+      <hr class="ticket-divider" style="margin-top:1rem"/>
+      <div style="font-size:0.75rem;color:var(--text-dim);font-style:italic">"Come dressed. Be mysterious. Let's make it unforgettable."</div>
+    </div>
+  </div>
+  <div class="text-center mt-1">
+    <button class="btn-outline btn-sm" onclick="printTicket()">🖨 Save / Print Ticket</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ════════════ POLLS ════════════ -->
+
+<div id="page-polls" class="page">
+  <div class="section">
+    <h2 class="section-title">🗳️ Mascherata Polls</h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Cast your vote — the masked ball deserves crowned champions.</p>
+    <div id="polls-container" class="polls-grid"></div>
+    <div id="polls-login-note" class="login-required-note hidden">
+      You must <span class="toggle-link" onclick="showPage('tickets');showTicketTab('login')">log in</span> with a valid ticket to vote.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ORACLE AI ════════════ -->
+
+<div id="page-ai" class="page">
+  <div class="section">
+    <h2 class="section-title">🎭 The Mascherata Oracle</h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Whisper your questions to the Oracle of the Masquerade.</p>
+    <div class="ai-chat-container">
+      <div class="ai-chat-header">
+        <div style="font-size:1.8rem">🎭</div>
+        <div>
+          <div class="ai-chat-title">Oracle of the Mascherata</div>
+          <div class="ai-chat-sub">Wisdom veiled in mystery — ask anything of the night</div>
+        </div>
+      </div>
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg">
+          <div class="ai-avatar">🎭</div>
+          <div class="ai-bubble">Welcome, masked guest. I am the Oracle of the Mascherata — voice of the night, keeper of its secrets. Ask me of the evening's schedule, the dress code, pathology trivia, or anything your curious mind desires. The masks reveal nothing... but I reveal all. 🕯️</div>
+        </div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="ai-input" placeholder="Ask the Oracle..." onkeydown="if(event.key==='Enter')sendAI()"/>
+        <button class="btn-purple btn-sm" onclick="sendAI()">Ask ✦</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ADMIN ════════════ -->
+
+<div id="page-admin" class="page">
+  <!-- Admin login -->
+  <div id="admin-login-wall" style="padding-top:64px">
+    <div class="section" style="max-width:420px">
+      <div class="form-container">
+        <div class="form-header">
+          <span class="form-icon">⚙️</span>
+          <div class="form-title">Committee Access</div>
+          <div class="form-sub">Authorized organizers only</div>
+        </div>
+        <div id="admin-login-error" class="hidden" style="background:rgba(139,26,46,0.15);border:1px solid rgba(139,26,46,0.4);border-radius:2px;padding:0.6rem 1rem;font-size:0.85rem;color:#e06080;margin-bottom:1rem;text-align:center;"></div>
+        <div class="form-group"><label>Admin Email</label><input type="email" id="admin-email" placeholder="committee@kiu.ac.ug" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="admin-pw" placeholder="Your admin password" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+        <button class="btn-gold full-width mt-1" onclick="adminLogin()">Enter Dashboard</button>
+        <p style="text-align:center;font-size:0.75rem;color:var(--text-dim);margin-top:1rem;font-style:italic">Access restricted to Pathology La Cena organizing committee.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin dashboard -->
+
+  <div id="admin-dashboard" class="hidden">
+    <div class="admin-header">
+      <div class="section-title">⚙️ Admin Dashboard</div>
+      <p style="color:var(--text-dim);font-style:italic;font-size:0.9rem">Pathology La Cena — MASCHERATA 2026</p>
+      <p id="admin-logged-as" style="color:var(--gold-dim);font-size:0.75rem;font-family:'Cinzel',serif;letter-spacing:0.1em;margin-top:0.25rem"></p>
+      <button class="btn-outline btn-sm" style="margin-top:0.75rem" onclick="adminLogout()">Logout</button>
+    </div>
+
+```
+<div class="admin-tabs">
+  <div class="admin-tab active" onclick="switchAdminTab('overview')">Overview</div>
+  <div class="admin-tab" onclick="switchAdminTab('codes')">Access Codes</div>
+  <div class="admin-tab" onclick="switchAdminTab('attendees')">Attendees</div>
+  <div class="admin-tab" onclick="switchAdminTab('polls-admin')">Polls</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="admin-content">
+  <div id="tab-overview" class="admin-panel active">
+    <div class="stat-row" id="stats-row"></div>
+    <div class="admin-card">
+      <div class="admin-card-title">Recent Registrations</div>
+      <table class="attendee-table" id="recent-table">
+        <thead><tr><th>Name</th><th>Class</th><th>Category</th><th>Ticket #</th><th>Status</th></tr></thead>
+        <tbody id="recent-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CODES -->
+  <div id="tab-codes" class="admin-panel">
+    <div class="admin-grid">
+      <div class="admin-card">
+        <div class="admin-card-title">Generate New Code</div>
+        <div class="form-group"><label>Code Purpose / Note</label><input type="text" id="code-note" placeholder="e.g. Batch A — Class 3.2"/></div>
+        <div class="form-group">
+          <label>Quantity</label>
+          <select id="code-qty">
+            <option value="1">1 code</option>
+            <option value="5">5 codes</option>
+            <option value="10">10 codes</option>
+            <option value="20">20 codes</option>
+            <option value="50">50 codes</option>
+          </select>
+        </div>
+        <button class="btn-gold full-width" onclick="generateCodes()">Generate Codes ✦</button>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title">Active Codes</div>
+        <ul class="code-list" id="code-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATTENDEES -->
+  <div id="tab-attendees" class="admin-panel">
+    <div class="admin-card">
+      <div class="admin-card-title">All Registered Attendees</div>
+      <table class="attendee-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Class</th><th>Category</th><th>Ticket #</th><th>Status</th></tr></thead>
+        <tbody id="attendee-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- POLLS ADMIN -->
+  <div id="tab-polls-admin" class="admin-panel">
+    <div class="poll-admin-grid">
+      <div class="admin-card">
+        <div class="admin-card-title">Create New Poll/Category</div>
+        <div class="form-group"><label>Category Title</label><input type="text" id="poll-title" placeholder="e.g. Best Dressed Lady"/></div>
+        <div class="form-group"><label>Emoji Icon</label><input type="text" id="poll-emoji" placeholder="👑" style="font-size:1.5rem;text-align:center;width:80px"/></div>
+        <div class="form-group">
+          <label>Add Nominees</label>
+          <div class="nominee-input-row">
+            <input type="text" id="nominee-input" placeholder="Nominee name" onkeydown="if(event.key==='Enter')addNominee()"/>
+            <button class="btn-outline btn-sm" onclick="addNominee()">Add</button>
+          </div>
+          <ul class="nominees-list-admin" id="nominees-admin-list"></ul>
+        </div>
+        <button class="btn-gold full-width" onclick="createPoll()">Create Poll ✦</button>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title">Live Polls</div>
+        <ul class="existing-polls-list" id="existing-polls-list"></ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+// Admin accounts — add more committee members here
+const ADMIN_ACCOUNTS = [
+  { email: 'admin@mascherata.kiu', password: 'Mascherata@2026' },
+  { email: 'pathology@kiu.ac.ug',  password: 'LaCena@2026'     },
+  { email: 'naziru@kiu.ac.ug',     password: 'NAZIRU@CEO2026'  },
+];
+const EVENT_DATE = new Date('2026-10-31T18:00:00');
+
+let state = {
+  users: JSON.parse(localStorage.getItem('msc_users') || '[]'),
+  codes: JSON.parse(localStorage.getItem('msc_codes') || '[]'),
+  polls: JSON.parse(localStorage.getItem('msc_polls') || 'null') || defaultPolls(),
+  currentUser: JSON.parse(localStorage.getItem('msc_current') || 'null'),
+  adminLoggedIn: false,
+  tempNominees: [],
+};
+
+function defaultPolls() {
+  return [
+    {
+      id:'p1', title:'Best Dressed Lady', emoji:'👑',
+      nominees:[
+        {id:'n1',name:'Nominee A',votes:0},
+        {id:'n2',name:'Nominee B',votes:0},
+        {id:'n3',name:'Nominee C',votes:0},
+      ], userVotes:{}, totalVotes:0
+    },
+    {
+      id:'p2', title:'Best Dressed Gentleman', emoji:'🎩',
+      nominees:[
+        {id:'n1',name:'Nominee A',votes:0},
+        {id:'n2',name:'Nominee B',votes:0},
+        {id:'n3',name:'Nominee C',votes:0},
+      ], userVotes:{}, totalVotes:0
+    },
+    {
+      id:'p3', title:'Couple of the Night', emoji:'💫',
+      nominees:[
+        {id:'n1',name:'Couple A',votes:0},
+        {id:'n2',name:'Couple B',votes:0},
+      ], userVotes:{}, totalVotes:0
+    },
+    {
+      id:'p4', title:'Masked King & Queen', emoji:'🎭',
+      nominees:[
+        {id:'n1',name:'Candidate A',votes:0},
+        {id:'n2',name:'Candidate B',votes:0},
+        {id:'n3',name:'Candidate C',votes:0},
+      ], userVotes:{}, totalVotes:0
+    },
+  ];
+}
+
+function save() {
+  localStorage.setItem('msc_users', JSON.stringify(state.users));
+  localStorage.setItem('msc_codes', JSON.stringify(state.codes));
+  localStorage.setItem('msc_polls', JSON.stringify(state.polls));
+  localStorage.setItem('msc_current', JSON.stringify(state.currentUser));
+}
+
+// ═══════════════════════════════════════════════════
+// CANVAS PARTICLES
+// ═══════════════════════════════════════════════════
+(function(){
+  const canvas=document.getElementById('canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++) particles.push({
+    x:Math.random()*1000, y:Math.random()*1000,
+    r:Math.random()*1.5+0.5,
+    vx:(Math.random()-.5)*0.3, vy:(Math.random()-.5)*0.3,
+    alpha:Math.random()*0.6+0.2,
+    color:Math.random()>0.5?'201,168,76':'139,82,204'
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══════════════════════════════════════════════════
+// COUNTDOWN
+// ═══════════════════════════════════════════════════
+function updateCountdown(){
+  const diff=EVENT_DATE-new Date();
+  if(diff<=0){document.getElementById('countdown').innerHTML='<div style="color:var(--gold);font-family:Cinzel Decorative,serif;font-size:1.5rem">🎭 The Night Has Arrived!</div>';return;}
+  const d=Math.floor(diff/86400000), h=Math.floor((diff%86400000)/3600000),
+        m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+  document.getElementById('cd-days').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-hours').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-mins').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-secs').textContent=String(s).padStart(2,'0');
+}
+updateCountdown(); setInterval(updateCountdown,1000);
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.textContent.toLowerCase().includes(page)||b.getAttribute('onclick')?.includes("'"+page+"'")) b.classList.add('active'); });
+  if(page==='polls') renderPolls();
+  if(page==='admin') renderAdminDashboard();
+  window.scrollTo(0,0);
+}
+
+function showTicketTab(tab){
+  ['register','login','code'].forEach(t=>{
+    document.getElementById('ticket-tab-'+t).classList.toggle('hidden', t!==tab);
+    document.getElementById('tab-'+t).style.borderColor = t===tab?'var(--gold)':'var(--gold-dim)';
+    document.getElementById('tab-'+t).style.color = t===tab?'var(--gold)':'var(--text-dim)';
+  });
+  if(tab==='code'){
+    if(state.currentUser){
+      document.getElementById('code-login-wall').classList.add('hidden');
+      document.getElementById('code-entry-form').classList.remove('hidden');
+    } else {
+      document.getElementById('code-login-wall').classList.remove('hidden');
+      document.getElementById('code-entry-form').classList.add('hidden');
+    }
+    if(state.currentUser?.ticketNumber) showTicket();
+  }
+}
+
+function scrollToRegister(cat){
+  showTicketTab('register');
+  if(cat) document.getElementById('reg-category').value=cat;
+  document.getElementById('ticket-tab-register').scrollIntoView({behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+function register(){
+  const fname=document.getElementById('reg-fname').value.trim();
+  const lname=document.getElementById('reg-lname').value.trim();
+  const email=document.getElementById('reg-email').value.trim().toLowerCase();
+  const cls=document.getElementById('reg-class').value;
+  const cat=document.getElementById('reg-category').value;
+  const pw=document.getElementById('reg-password').value;
+  const cpw=document.getElementById('reg-confirm').value;
+  if(!fname||!lname||!email||!cls||!pw){return toast('Please fill all fields','error');}
+  if(pw!==cpw){return toast('Passwords do not match','error');}
+  if(pw.length<6){return toast('Password must be at least 6 characters','error');}
+  if(state.users.find(u=>u.email===email)){return toast('Email already registered','error');}
+  const user={id:uid(),fname,lname,email,cls,cat,pw,ticketNumber:null,registeredAt:new Date().toISOString()};
+  state.users.push(user);
+  state.currentUser=user;
+  save();
+  toast('Welcome, '+fname+'! 🎭 Now enter your Dinner Code to unlock your ticket.','success');
+  showTicketTab('code');
+}
+
+function login(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pw=document.getElementById('login-password').value;
+  const user=state.users.find(u=>u.email===email&&u.pw===pw);
+  if(!user) return toast('Invalid email or password','error');
+  state.currentUser=user;
+  save();
+  toast('Welcome back, '+user.fname+'! 🎭','success');
+  showTicketTab('code');
+  if(user.ticketNumber) showTicket();
+}
+
+// ═══════════════════════════════════════════════════
+// CODE REDEMPTION
+// ═══════════════════════════════════════════════════
+function redeemCode(){
+  if(!state.currentUser) return toast('Please login first','error');
+  if(state.currentUser.ticketNumber) return toast('You already have a ticket!','success');
+  const codeVal=document.getElementById('dinner-code-input').value.trim().toUpperCase();
+  const codeObj=state.codes.find(c=>c.code===codeVal&&!c.used);
+  if(!codeObj) return toast('Invalid or already used code','error');
+  const expiry=new Date(codeObj.createdAt);
+  expiry.setMonth(expiry.getMonth()+4);
+  if(new Date()>expiry) return toast('This code has expired','error');
+  // Mark used
+  codeObj.used=true; codeObj.usedBy=state.currentUser.email; codeObj.usedAt=new Date().toISOString();
+  // Assign ticket number
+  const tNum='#MLC-'+String(Math.floor(1000+Math.random()*9000));
+  const userIdx=state.users.findIndex(u=>u.email===state.currentUser.email);
+  state.users[userIdx].ticketNumber=tNum;
+  state.currentUser=state.users[userIdx];
+  save();
+  toast('🎭 Ticket unlocked! Welcome to the Mascherata!','success');
+  showTicket();
+}
+
+function showTicket(){
+  const u=state.currentUser;
+  document.getElementById('td-name').textContent=u.fname+' '+u.lname;
+  document.getElementById('td-class').textContent=u.cls;
+  document.getElementById('td-category').textContent=u.cat==='couple'?'Couple 💫':'Single 🎭';
+  document.getElementById('td-number').textContent=u.ticketNumber;
+  document.getElementById('ticket-result').classList.remove('hidden');
+  document.getElementById('ticket-result').scrollIntoView({behavior:'smooth'});
+}
+
+function printTicket(){ window.print(); }
+
+// ═══════════════════════════════════════════════════
+// POLLS
+// ═══════════════════════════════════════════════════
+function renderPolls(){
+  const container=document.getElementById('polls-container');
+  const note=document.getElementById('polls-login-note');
+  container.innerHTML='';
+  if(!state.polls.length){
+    container.innerHTML='<p style="color:var(--text-dim);font-style:italic;text-align:center;grid-column:1/-1">No polls live yet. Check back soon! 🎭</p>';
+    return;
+  }
+  const canVote=!!state.currentUser?.ticketNumber;
+  note.classList.toggle('hidden',canVote);
+  state.polls.forEach(poll=>{
+    const total=poll.nominees.reduce((s,n)=>s+n.votes,0);
+    const userVote=state.currentUser?poll.userVotes[state.currentUser.id]:null;
+    const card=document.createElement('div');
+    card.className='poll-card';
+    let nomHtml=poll.nominees.map(nom=>{
+      const pct=total?Math.round(nom.votes/total*100):0;
+      const voted=userVote===nom.id;
+      return `<div class="nominee-item${voted?' voted':''}" onclick="${canVote?`castVote('${poll.id}','${nom.id}')`:''}" style="${!canVote?'cursor:default':''}">
+        <div class="nominee-radio"><div class="nominee-radio-dot"></div></div>
+        <span class="nominee-name">${nom.name}</span>
+        <span class="nominee-count">${nom.votes}</span>
+      </div>
+      ${userVote?`<div class="vote-bar-wrap"><div class="vote-bar-label"><span>${nom.name}</span><span>${pct}%</span></div><div class="vote-bar-track"><div class="vote-bar-fill" style="width:${pct}%"></div></div></div>`:''}`;
+    }).join('');
+    card.innerHTML=`
+      <div class="poll-card-header">
+        <span class="poll-emoji">${poll.emoji||'🗳️'}</span>
+        <div><div class="poll-card-title">${poll.title}</div><div class="poll-card-type">${poll.nominees.length} nominees</div></div>
+      </div>
+      <div class="nominee-list">${nomHtml}</div>
+      <div class="poll-footer">
+        <span class="poll-total">${total} vote${total!==1?'s':''} cast</span>
+        ${userVote?'<span class="voted-badge">✓ Voted</span>':''}
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function castVote(pollId, nomId){
+  if(!state.currentUser?.ticketNumber) return toast('You need a valid ticket to vote','error');
+  const poll=state.polls.find(p=>p.id===pollId);
+  if(!poll) return;
+  const prev=poll.userVotes[state.currentUser.id];
+  if(prev){
+    if(prev===nomId) return;
+    poll.nominees.find(n=>n.id===prev).votes--;
+  }
+  poll.nominees.find(n=>n.id===nomId).votes++;
+  poll.userVotes[state.currentUser.id]=nomId;
+  save();
+  renderPolls();
+  toast('Vote cast! 🎭','success');
+}
+
+// ═══════════════════════════════════════════════════
+// ORACLE AI
+// ═══════════════════════════════════════════════════
+async function sendAI(){
+  const input=document.getElementById('ai-input');
+  const msg=input.value.trim();
+  if(!msg) return;
+  input.value='';
+  appendMsg(msg,'user');
+  const loader=appendLoader();
+  const systemPrompt=`You are the Oracle of the Mascherata — the mystical AI host of "Pathology La Cena: MASCHERATA", a grand masquerade dinner hosted by KIU Western Campus Biomedical Sciences students on October 31st 2026 at Western Meridean Hotel, Mbarara-Bushenyi, Uganda.
+
+Event Details:
+- Theme: MASCHERATA — "Masked in Mystery, United by Medicine"
+- Date: 31st October 2026, 6:00 PM onwards
+- Venue: Western Meridean Hotel, Mbarara-Bushenyi
+- Tickets: Single 60,000 UGX | Couple 110,000 UGX (limited)
+- Payment: MTN MoMo 13596432 (Solomon) → WhatsApp +256 705 265952 with transaction ID to receive Dinner Code
+- Dress Code: Masquerade — elegant, masked, mysterious
+- Tagline: "Come dressed. Be mysterious. Let's make it unforgettable."
+
+Speak in a theatrical, elegant, slightly mysterious tone befitting a masquerade oracle. Be helpful, warm, and knowledgeable about the event. Also answer pathology/medicine questions with elegance. Keep responses concise (2-4 sentences max).`;
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:[{role:'user',content:msg}]
+      })
+    });
+    const data=await res.json();
+    loader.remove();
+    const reply=data.content?.map(b=>b.text||'').join('')||"The oracle's vision is momentarily clouded... try again.";
+    appendMsg(reply,'ai');
+  } catch(e){
+    loader.remove();
+    appendMsg("The oracle's torch flickers... a connection was lost. Try again, masked one.",'ai');
+  }
+}
+
+function appendMsg(text,role){
+  const container=document.getElementById('ai-messages');
+  const div=document.createElement('div');
+  div.className='ai-msg'+(role==='user'?' user':'');
+  div.innerHTML=`<div class="ai-avatar">${role==='user'?'🎭':'🕯️'}</div><div class="ai-bubble">${text}</div>`;
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+  return div;
+}
+
+function appendLoader(){
+  const container=document.getElementById('ai-messages');
+  const div=document.createElement('div');
+  div.className='ai-msg';
+  div.innerHTML=`<div class="ai-avatar">🕯️</div><div class="ai-bubble"><div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div>`;
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+  return div;
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════
+function adminLogin(){
+  const email=document.getElementById('admin-email').value.trim().toLowerCase();
+  const pw=document.getElementById('admin-pw').value;
+  const errBox=document.getElementById('admin-login-error');
+  const match=ADMIN_ACCOUNTS.find(a=>a.email.toLowerCase()===email&&a.password===pw);
+  if(match){
+    state.adminLoggedIn=true;
+    state.adminEmail=email;
+    errBox.classList.add('hidden');
+    document.getElementById('admin-login-wall').classList.add('hidden');
+    document.getElementById('admin-dashboard').classList.remove('hidden');
+    renderAdminDashboard();
+    toast('Welcome, Committee Member 🎭','success');
+  } else {
+    errBox.textContent='Invalid email or password. Access denied.';
+    errBox.classList.remove('hidden');
+    document.getElementById('admin-pw').value='';
+  }
+}
+
+function adminLogout(){
+  state.adminLoggedIn=false;
+  state.adminEmail=null;
+  document.getElementById('admin-login-wall').classList.remove('hidden');
+  document.getElementById('admin-dashboard').classList.add('hidden');
+  document.getElementById('admin-email').value='';
+  document.getElementById('admin-pw').value='';
+  document.getElementById('admin-login-error').classList.add('hidden');
+  document.getElementById('admin-nav-btn').style.display='none';
+  history.replaceState(null,'',window.location.pathname);
+  showPage('home');
+}
+
+function switchAdminTab(tab){
+  document.querySelectorAll('.admin-tab').forEach((t,i)=>{
+    const tabs=['overview','codes','attendees','polls-admin'];
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  renderAdminDashboard();
+}
+
+function renderAdminDashboard(){
+  if(!state.adminLoggedIn) return;
+  const label=document.getElementById('admin-logged-as');
+  if(label) label.textContent='Signed in as: '+state.adminEmail;
+  // Stats
+  const total=state.users.length;
+  const ticketed=state.users.filter(u=>u.ticketNumber).length;
+  const couples=state.users.filter(u=>u.cat==='couple').length;
+  const singles=state.users.filter(u=>u.cat==='single').length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-label">Registered</div></div>
+    <div class="stat-box"><div class="stat-num">${ticketed}</div><div class="stat-label">Ticketed</div></div>
+    <div class="stat-box"><div class="stat-num">${singles}</div><div class="stat-label">Singles</div></div>
+    <div class="stat-box"><div class="stat-num">${couples}</div><div class="stat-label">Couples</div></div>
+    <div class="stat-box"><div class="stat-num">${state.codes.filter(c=>!c.used).length}</div><div class="stat-label">Unused Codes</div></div>`;
+
+  // Recent
+  const tbody=document.getElementById('recent-body');
+  tbody.innerHTML=state.users.slice(-8).reverse().map(u=>`
+    <tr><td>${u.fname} ${u.lname}</td><td>${u.cls}</td>
+    <td><span class="badge badge-${u.cat}">${u.cat}</span></td>
+    <td>${u.ticketNumber||'—'}</td>
+    <td style="color:${u.ticketNumber?'var(--gold)':'var(--text-dim)'}">${u.ticketNumber?'✓ Active':'Pending'}</td></tr>`).join('');
+
+  // Attendees
+  document.getElementById('attendee-body').innerHTML=state.users.map(u=>`
+    <tr><td>${u.fname} ${u.lname}</td><td style="font-size:0.8rem;color:var(--text-dim)">${u.email}</td>
+    <td>${u.cls}</td><td><span class="badge badge-${u.cat}">${u.cat}</span></td>
+    <td>${u.ticketNumber||'—'}</td>
+    <td style="color:${u.ticketNumber?'var(--gold)':'var(--text-dim)'}">${u.ticketNumber?'✓ Active':'Pending'}</td></tr>`).join('');
+
+  // Codes
+  document.getElementById('code-list').innerHTML=state.codes.slice(-30).reverse().map(c=>{
+    const exp=new Date(c.createdAt); exp.setMonth(exp.getMonth()+4);
+    return `<li class="code-item">
+      <div><div class="code-tag${c.used?' used':''}">${c.code}</div><div class="code-expires">Expires: ${exp.toLocaleDateString()}</div></div>
+      <div class="code-meta">${c.used?`Used by ${c.usedBy}`:c.note||''}</div>
+    </li>`;
+  }).join('');
+
+  // Polls admin list
+  document.getElementById('existing-polls-list').innerHTML=state.polls.map(p=>`
+    <li class="existing-poll-item">
+      <div class="existing-poll-info">
+        <div class="existing-poll-name">${p.emoji} ${p.title}</div>
+        <div class="existing-poll-meta">${p.nominees.length} nominees · ${p.nominees.reduce((s,n)=>s+n.votes,0)} votes</div>
+      </div>
+      <div class="existing-poll-actions">
+        <button class="btn-danger btn-sm" onclick="deletePoll('${p.id}')">Remove</button>
+      </div>
+    </li>`).join('') || '<li style="color:var(--text-dim);font-style:italic;padding:1rem">No polls created yet.</li>';
+}
+
+function generateCodes(){
+  const note=document.getElementById('code-note').value.trim();
+  const qty=parseInt(document.getElementById('code-qty').value);
+  const created=[];
+  for(let i=0;i<qty;i++){
+    const code={
+      id:uid(), code:'MSCRT-'+randomStr(5),
+      note, used:false, usedBy:null, usedAt:null,
+      createdAt:new Date().toISOString()
+    };
+    state.codes.push(code);
+    created.push(code.code);
+  }
+  save(); renderAdminDashboard();
+  toast(`${qty} code${qty>1?'s':''} generated ✦`,'success');
+}
+
+// POLL MANAGEMENT
+let tempNominees=[];
+function addNominee(){
+  const v=document.getElementById('nominee-input').value.trim();
+  if(!v) return;
+  tempNominees.push({id:uid(),name:v,votes:0});
+  document.getElementById('nominee-input').value='';
+  renderTempNominees();
+}
+function renderTempNominees(){
+  document.getElementById('nominees-admin-list').innerHTML=tempNominees.map((n,i)=>`
+    <li>${n.name} <button class="btn-danger btn-sm" onclick="tempNominees.splice(${i},1);renderTempNominees()">×</button></li>`).join('');
+}
+function createPoll(){
+  const title=document.getElementById('poll-title').value.trim();
+  const emoji=document.getElementById('poll-emoji').value.trim()||'🗳️';
+  if(!title) return toast('Enter a category title','error');
+  if(tempNominees.length<2) return toast('Add at least 2 nominees','error');
+  state.polls.push({id:uid(),title,emoji,nominees:[...tempNominees],userVotes:{},totalVotes:0});
+  tempNominees=[];
+  document.getElementById('poll-title').value='';
+  document.getElementById('poll-emoji').value='';
+  renderTempNominees();
+  save(); renderAdminDashboard();
+  toast('Poll "'+title+'" created! 🎭','success');
+}
+function deletePoll(id){
+  state.polls=state.polls.filter(p=>p.id!==id);
+  save(); renderAdminDashboard();
+  toast('Poll removed','success');
+}
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).substr(2,5); }
+function randomStr(n){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let r=''; for(let i=0;i<n;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
+
+function toast(msg,type='success'){
+  const t=document.createElement('div');
+  t.className='toast '+(type==='error'?'error':'success');
+  t.innerHTML=(type==='success'?'✦ ':'⚠ ')+msg;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// SECRET ADMIN ROUTE
+// ═══════════════════════════════════════════════════
+// To access admin: go to the URL and add  #admin-216  at the end
+// e.g.  file:///yourfile.html#admin-216
+// or    https://yoursite.com/mascherata.html#admin-216
+const SECRET_HASH = '#admin-216';
+
+function checkAdminHash(){
+  if(window.location.hash === SECRET_HASH){
+    document.getElementById('admin-nav-btn').style.display='';
+    showPage('admin');
+  }
+}
+
+window.addEventListener('hashchange', checkAdminHash);
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+if(state.currentUser){
+  const fresh=state.users.find(u=>u.id===state.currentUser.id);
+  if(fresh) state.currentUser=fresh;
+}
+
+// Check hash on load first
+if(window.location.hash === SECRET_HASH){
+  document.getElementById('admin-nav-btn').style.display='';
+  showPage('admin');
+} else {
+  showPage('home');
+  showTicketTab('register');
+}
+</script>
+
+</body>
+</html>
